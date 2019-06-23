@@ -10,7 +10,10 @@ namespace AdaptiveVectorQuantization
 {
     internal class AVQ
     {
-        public static FastImage originalImage;
+        private static string CompressedFile;
+        private static string DecompressedFile;
+
+        public static FastImage originalImage = null;
         public static FastImage workImage;
         public static FastImage bitmapBlocks;
         public static bool originalImageValid;
@@ -45,6 +48,7 @@ namespace AdaptiveVectorQuantization
 
             Bitmap blackImageBitmap = new Bitmap(originalImage.Width, originalImage.Height, PixelFormat.Format24bppRgb);
             Bitmap blackImageBitmap2 = new Bitmap(originalImage.Width, originalImage.Height, PixelFormat.Format24bppRgb);
+
             workImage = new FastImage(blackImageBitmap);
             bitmapBlocks = new FastImage(blackImageBitmap2);
 
@@ -59,13 +63,7 @@ namespace AdaptiveVectorQuantization
 
         public AVQ()
         {
-            originalImageValid = false;
-            //Position firstGrowingPoint = new Position(0, 0);
-            //poolGrowingPoints.Add(firstGrowingPoint);
 
-            dictionary = new Dictionary<Block, int>();
-            dictionaryBackup = new List<Block>();
-            currentDictionaryLength = 256;
         }
 
         private static int SizeInBits(int value)
@@ -105,21 +103,21 @@ namespace AdaptiveVectorQuantization
         private static void WriteInFile(List<int> indexes)
         {
             int indexBitsNumber = SizeInBits(MaxDictionaryLength - 1);
-            string[] fileNameParts = FormAVQ.InputFile.Split('.');
+            string[] fileNameParts = FormAVQ.OriginalFile.Split('.');
             string filenamesuffix = "_T" + Threshold + "_D" + MaxDictionaryLength;
 
-            string filenameNoExtension = Path.GetFileNameWithoutExtension(FormAVQ.InputFile);
-            string folderPath = Path.GetDirectoryName(FormAVQ.InputFile);
+            string filenameNoExtension = Path.GetFileNameWithoutExtension(FormAVQ.OriginalFile);
+            string folderPath = Path.GetDirectoryName(FormAVQ.OriginalFile);
 
             string folder = Path.Combine(folderPath, filenameNoExtension);
             if (!Directory.Exists(folder))
             {
                 Directory.CreateDirectory(folder);
             }
-            string outputFile = Path.Combine(folder, filenameNoExtension + "_T" + Threshold + "_D" + MaxDictionaryLength + ".AVQ");
+            CompressedFile = Path.Combine(folder, filenameNoExtension + "_T" + Threshold + "_D" + MaxDictionaryLength + ".AVQ");
 
 
-            using (BitWriter writer = new BitWriter(outputFile))
+            using (BitWriter writer = new BitWriter(CompressedFile))
             {
                 writer.WriteNBits((uint)indexes.Count, 32);
                 writer.WriteNBits((uint)Threshold, 32);
@@ -488,13 +486,230 @@ namespace AdaptiveVectorQuantization
 
         }
 
-        public FastImage StartDeCompression(string inputFile)
+        private float CompareImages(Bitmap originalImage, Bitmap decompressedImage)
         {
-            ReadFromFile(inputFile);
            
+
+            if (originalImage.Size != decompressedImage.Size)
+            {
+
+            }
+
+            float diff = 0;
+
+            for (int y = 0; y < originalImage.Height; y++)
+            {
+                for (int x = 0; x < originalImage.Width; x++)
+                {
+                    Color pixel1 = originalImage.GetPixel(x, y);
+                    Color pixel2 = decompressedImage.GetPixel(x, y);
+
+                    diff += Math.Abs(pixel1.R - pixel2.R);
+                    diff += Math.Abs(pixel1.G - pixel2.G);
+                    diff += Math.Abs(pixel1.B - pixel2.B);
+                }
+            }
+
+            //Console.WriteLine("diff: {0} %", 100 * (diff / 255) / (img1.Width * img1.Height * 3));
+            return 100 * (diff / 255) / (originalImage.Width * originalImage.Height * 3);
+        }
+        public SimulationResult StartSimulation(int th, int dictionarySize)
+        {
+
+            indexesList = new List<int>();
+            Threshold = th;
+            MaxDictionaryLength = dictionarySize;
+            // BlocPainFrequency = int.MaxValue;
+
+            originalImage.Lock();
+            workImage.Lock();
+
+            DateTime startTime = DateTime.Now;
+            buildGP();
+
+
+            while (poolGrowingPoints.Count != 0)
+            {
+
+
+
+
+
+                int widthStep, heightStep;
+                //Position growingPoint = UpdateGPPool();
+                Position growingPoint = poolGrowingPoints[0];
+                int i = growingPoint.X;
+                int j = growingPoint.Y;
+                int index;
+
+                if (i == 0 || j == 0)
+                {
+                    index = originalImage.GetPixel(i, j);
+                }
+                else
+                {
+                    index = SearchBlock(growingPoint);
+                }
+
+                indexesList.Add(index);
+
+                if (index < 256)
+                {
+                    workImage.SetPixel(i, j, index);
+                    imageBitmap[i, j] = true;
+                    widthStep = 1;
+                    heightStep = 1;
+                }
+                else
+                {
+
+                    Block findedBlock = dictionary.LastOrDefault(x => x.Value == index).Key;
+                    ReplaceBlock(findedBlock, i, j);
+
+                    widthStep = findedBlock.Width;
+                    heightStep = findedBlock.Height;
+
+
+                    numberBlocksFinded++;
+
+
+                }
+
+
+                // TryAddGrowingPoint(growingPoint, widthStep, heightStep);
+                //TryAddGrowingPoint(new Position(i + widthStep, j));
+
+                if (i != 0 && j != 0)
+                {
+                    UpdateDictionary(growingPoint, index);
+                }
+                UpdateGPPool();
+            }
+
+            Program.form.updatePanelBlock(bitmapBlocks.GetBitMap());
+
+            DateTime finishTime = DateTime.Now;
+            string compressionTime = (finishTime - startTime).Seconds.ToString();
+
+            WriteInFile(indexesList);
+            Console.WriteLine("NumberBlocksFinded = {0} numberErrorPX = {1}", numberBlocksFinded, numberErrorPX);
+
+            workImage.Unlock();
+            originalImage.Unlock();
+
+
+            //---
+
+            originalImageValid = false;
+            dictionary = new Dictionary<Block, int>();
+            dictionaryBackup = new List<Block>();
+            currentDictionaryLength = 256;
+            indexesList = new List<int>();
+
+            ReadFromFile(CompressedFile);
+
             Bitmap blackImageBitmap = new Bitmap(imageWidth, imageHeight, PixelFormat.Format24bppRgb);
             workImage = new FastImage(blackImageBitmap);
-           
+
+            workImage.Lock();
+
+            startTime = DateTime.Now;
+
+            buildGP();
+            while (poolGrowingPoints.Count != 0)
+            {
+                int widthStep, heightStep;
+                //Position growingPoint = UpdateGPPool();
+                Position growingPoint = poolGrowingPoints[0];
+
+                int i = growingPoint.X;
+                int j = growingPoint.Y;
+
+                int index = indexesList[0];
+                indexesList.RemoveAt(0);
+
+                if (index < 256)
+                {
+                    workImage.SetPixel(i, j, index);
+                    imageBitmap[i, j] = true;
+                    widthStep = 1;
+                    heightStep = 1;
+                }
+                else
+                {
+
+                    Block findedBlock = dictionary.LastOrDefault(x => x.Value == index).Key;
+
+                    if (findedBlock == null)
+                    {
+                        Console.WriteLine("**");
+                        foreach (Block block in dictionaryBackup)
+                        {
+                            if (block.Index == index)
+                            {
+                                findedBlock = block;
+                            }
+                        }
+                    }
+
+                    ReplaceBlock(findedBlock, i, j);
+
+                    widthStep = findedBlock.Width;
+                    heightStep = findedBlock.Height;
+
+                    numberBlocksFinded++;
+
+                }
+
+
+                if (i != 0 && j != 0)
+                {
+                    UpdateDictionary(growingPoint, index);
+                }
+                  
+                UpdateGPPool();
+            }
+
+            //Console.WriteLine("NumberBlocksFinded = {0} numberErrorPX = {1}", numberBlocksFinded, numberErrorPX);
+
+            finishTime = DateTime.Now;
+            string decompressionTime = (finishTime - startTime).Seconds.ToString();
+            //
+            workImage.Unlock();
+
+
+            //---
+
+            Bitmap bitmap = workImage.GetBitMap();
+            string[] output = CompressedFile.Split('.');
+            DecompressedFile = output[0] + "-decoded.bmp";
+            bitmap.Save(DecompressedFile);
+
+            float psnr = CompareImages(originalImage.GetBitMap(), workImage.GetBitMap());
+
+            long compressedFileSize = new FileInfo(CompressedFile).Length;
+            long decompressedFileSize = new FileInfo(DecompressedFile).Length;
+
+
+            return new SimulationResult(compressionTime, decompressionTime, numberBlocksFinded, compressedFileSize, decompressedFileSize, psnr);
+
+        }
+
+
+
+        public FastImage StartDeCompression(string inputFile)
+        {
+            originalImageValid = false;
+            dictionary = new Dictionary<Block, int>();
+            dictionaryBackup = new List<Block>();
+            currentDictionaryLength = 256;
+
+
+            ReadFromFile(inputFile);
+
+            Bitmap blackImageBitmap = new Bitmap(imageWidth, imageHeight, PixelFormat.Format24bppRgb);
+            workImage = new FastImage(blackImageBitmap);
+
             workImage.Lock();
             buildGP();
             while (poolGrowingPoints.Count != 0)
@@ -542,8 +757,6 @@ namespace AdaptiveVectorQuantization
 
                 }
 
-                //TryAddGrowingPoint(growingPoint, widthStep, heightStep);
-                //TryAddGrowingPoint(new Position(i + widthStep, j));
 
                 if (i != 0 && j != 0)
                 {

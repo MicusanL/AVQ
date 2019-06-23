@@ -64,3 +64,15 @@ D:\Facultate\Licenta\AVQ6\AdaptiveVectorQuantization\AdaptiveVectorQuantization\
 D:\Facultate\Licenta\AVQ6\AdaptiveVectorQuantization\AdaptiveVectorQuantization\obj\Debug\AdaptiveVectorQuantization.exe
 D:\Facultate\Licenta\AVQ6\AdaptiveVectorQuantization\AdaptiveVectorQuantization\obj\Debug\AdaptiveVectorQuantization.pdb
 D:\Facultate\Licenta\AVQ6\AdaptiveVectorQuantization\AdaptiveVectorQuantization\obj\Debug\AdaptiveVectorQuantization.csprojAssemblyReference.cache
+D:\Facultate\Licenta\AVQ9\AdaptiveVectorQuantization\bin\Debug\AdaptiveVectorQuantization.exe.config
+D:\Facultate\Licenta\AVQ9\AdaptiveVectorQuantization\bin\Debug\AdaptiveVectorQuantization.exe
+D:\Facultate\Licenta\AVQ9\AdaptiveVectorQuantization\bin\Debug\AdaptiveVectorQuantization.pdb
+D:\Facultate\Licenta\AVQ9\AdaptiveVectorQuantization\obj\Debug\AdaptiveVectorQuantization.csprojAssemblyReference.cache
+D:\Facultate\Licenta\AVQ9\AdaptiveVectorQuantization\obj\Debug\AdaptiveVectorQuantization.FormAVQ.resources
+D:\Facultate\Licenta\AVQ9\AdaptiveVectorQuantization\obj\Debug\AdaptiveVectorQuantization.Properties.Resources.resources
+D:\Facultate\Licenta\AVQ9\AdaptiveVectorQuantization\obj\Debug\AdaptiveVectorQuantization.csproj.GenerateResource.cache
+D:\Facultate\Licenta\AVQ9\AdaptiveVectorQuantization\obj\Debug\AdaptiveVectorQuantization.csproj.CoreCompileInputs.cache
+D:\Facultate\Licenta\AVQ9\AdaptiveVectorQuantization\obj\Debug\AdaptiveVectorQuantization.csproj.CopyComplete
+D:\Facultate\Licenta\AVQ9\AdaptiveVectorQuantization\obj\Debug\AdaptiveVectorQuantization.exe
+D:\Facultate\Licenta\AVQ9\AdaptiveVectorQuantization\obj\Debug\AdaptiveVectorQuantization.pdb
+D:\Facultate\Licenta\AVQ9\AdaptiveVectorQuantization\obj\Debug\AdaptiveVectorQuantization.csproj.ResolveComReference.cache
