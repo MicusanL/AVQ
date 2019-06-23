@@ -15,6 +15,7 @@ namespace AdaptiveVectorQuantization
         public FormAVQ()
         {
             InitializeComponent();
+      
         }
 
         public static string OriginalFile { get; set; }
@@ -60,7 +61,7 @@ namespace AdaptiveVectorQuantization
             panelDestination.BackgroundImage = null;
             Refresh();
 
-            if(comboBoxDictionarySize.SelectedItem == null)
+            if (comboBoxDictionarySize.SelectedItem == null)
             {
                 MessageBox.Show("You need to choose a dictionary size!");
                 invertFormAcces();
@@ -122,54 +123,63 @@ namespace AdaptiveVectorQuantization
         private void button1_Click(object sender, EventArgs e)
         {
             invertFormAcces();
+            labelSimulationStatus.Visible = true;
+            int[] thresholds = { 15 };
+            int[] dictionarySizes = { 1024, 2048, 4096, 8192, 16384, 32768, 65536 };
 
-            //int[] thresholds = { 0, 5, 10, 15 };
-            //int[] dictionarySizes = {1024, 2048, 4096, 8192, 16384, 32768, 65536, 131072, 262144 };
 
-            int[] thresholds = { 0 };
-            int[] dictionarySizes = { 100 };
-          
             if (OriginalFile != null)
             {
                 List<SimulationResult> simulations = new List<SimulationResult>(thresholds.Length * dictionarySizes.Length);
 
                 string delimiter = ",";
+                string[] parts = OriginalFile.Split('\\');
+                string imageName = parts[parts.Length - 1].Split('.')[0];
+
                 foreach (int threshold in thresholds)
                 {
+                    StringBuilder sb = new StringBuilder();
+
+                    sb.Append("Marime dictionar" + delimiter);
+                    sb.Append("Prag" + delimiter);
+                    sb.Append("Timp de executie compresie" + delimiter);
+                    sb.Append("Timp de executie decompresie" + delimiter);
+                    sb.Append("Numar de blocuri" + delimiter);
+                    sb.Append("Marime fisier comprimat" + delimiter);
+                    sb.Append("Marime fisier decomprimat" + delimiter);
+                    sb.AppendLine("PSNR" + delimiter);
+
                     foreach (int dictionarySize in dictionarySizes)
                     {
                         AvqCompression = new AVQ(OriginalFile);
                         simulations.Add(AvqCompression.StartSimulation(threshold, dictionarySize));
+                        labelSimulationStatus.Text = "Simulation D_" + dictionarySize + " P_" + threshold + " finished";
+                        labelSimulationStatus.Refresh();
                     }
+
+                    string filePath = @"D:\Facultate\Licenta\Img\" + imageName + "_P_" + threshold + ".csv";
+
+                    foreach (SimulationResult result in simulations)
+                    {
+
+                        sb.Append(result.DictionarySize + delimiter);
+                        sb.Append(result.Threshold + delimiter);
+                        sb.Append(result.CompressionTime + delimiter);
+                        sb.Append(result.DeompressionTime + delimiter);
+                        sb.Append(result.BlocksNumber.ToString() + delimiter);
+                        sb.Append(result.CompressedFileSize.ToString() + delimiter);
+                        sb.Append(result.DecompressedFileSize.ToString() + delimiter);
+                        sb.AppendLine(result.PSNR.ToString() + delimiter);
+
+                    }
+
+                    File.WriteAllText(filePath, sb.ToString());
+
+
                 }
 
-                string[] parts = OriginalFile.Split('\\');
-                string imageName = parts[parts.Length - 1].Split('.')[0];
-                string filePath = @"D:\Facultate\Licenta\Img\" + imageName + ".csv";
-            
 
-                
-                StringBuilder sb = new StringBuilder();
 
-                sb.Append("Timp de executie compresie" + delimiter);
-                sb.Append("Timp de executie decompresie" + delimiter);
-                sb.Append("Numar de blocuri" + delimiter);
-                sb.Append("Marime fisier comprimat" + delimiter);
-                sb.Append("Marime fisier decomprimat" + delimiter);
-                sb.AppendLine("PSNR" + delimiter);
-
-               foreach (SimulationResult result in simulations)
-                {
-                    sb.Append( result.CompressionTime + delimiter);
-                    sb.Append( result.DeompressionTime + delimiter);
-                    sb.Append(result.BlocksNumber.ToString() + delimiter);
-                    sb.Append( result.CompressedFileSize.ToString() + delimiter);
-                    sb.Append( result.DecompressedFileSize.ToString() + delimiter);
-                    sb.AppendLine(result.PSNR.ToString() + delimiter);
-                    
-                }
-
-                File.WriteAllText(filePath, sb.ToString());
 
 
             }
@@ -180,8 +190,9 @@ namespace AdaptiveVectorQuantization
 
 
 
-            
 
+
+            labelSimulationStatus.Visible = false;
             invertFormAcces();
             MessageBox.Show("Simulation finished!");
         }

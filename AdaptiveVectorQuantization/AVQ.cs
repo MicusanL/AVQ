@@ -486,14 +486,8 @@ namespace AdaptiveVectorQuantization
 
         }
 
-        private float CompareImages(Bitmap originalImage, Bitmap decompressedImage)
+        private float CompareImages(FastImage originalImage, FastImage decompressedImage)
         {
-           
-
-            if (originalImage.Size != decompressedImage.Size)
-            {
-
-            }
 
             float diff = 0;
 
@@ -501,12 +495,13 @@ namespace AdaptiveVectorQuantization
             {
                 for (int x = 0; x < originalImage.Width; x++)
                 {
-                    Color pixel1 = originalImage.GetPixel(x, y);
-                    Color pixel2 = decompressedImage.GetPixel(x, y);
+                    int pixel1 = originalImage.GetPixel(x, y);
+                    int pixel2 = decompressedImage.GetPixel(x, y);
 
-                    diff += Math.Abs(pixel1.R - pixel2.R);
-                    diff += Math.Abs(pixel1.G - pixel2.G);
-                    diff += Math.Abs(pixel1.B - pixel2.B);
+                    originalImage.GetPixel(x, y);
+                    decompressedImage.GetPixel(x, y);
+                    diff += Math.Abs(pixel1 - pixel2);
+
                 }
             }
 
@@ -589,7 +584,7 @@ namespace AdaptiveVectorQuantization
             Program.form.updatePanelBlock(bitmapBlocks.GetBitMap());
 
             DateTime finishTime = DateTime.Now;
-            string compressionTime = (finishTime - startTime).Seconds.ToString();
+            string compressionTime = (finishTime - startTime).TotalSeconds.ToString();
 
             WriteInFile(indexesList);
             Console.WriteLine("NumberBlocksFinded = {0} numberErrorPX = {1}", numberBlocksFinded, numberErrorPX);
@@ -666,14 +661,14 @@ namespace AdaptiveVectorQuantization
                 {
                     UpdateDictionary(growingPoint, index);
                 }
-                  
+
                 UpdateGPPool();
             }
 
             //Console.WriteLine("NumberBlocksFinded = {0} numberErrorPX = {1}", numberBlocksFinded, numberErrorPX);
 
             finishTime = DateTime.Now;
-            string decompressionTime = (finishTime - startTime).Seconds.ToString();
+            string decompressionTime = (finishTime - startTime).TotalSeconds.ToString();
             //
             workImage.Unlock();
 
@@ -685,13 +680,13 @@ namespace AdaptiveVectorQuantization
             DecompressedFile = output[0] + "-decoded.bmp";
             bitmap.Save(DecompressedFile);
 
-            float psnr = CompareImages(originalImage.GetBitMap(), workImage.GetBitMap());
+            float psnr = CompareImages(originalImage, workImage);
 
             long compressedFileSize = new FileInfo(CompressedFile).Length;
             long decompressedFileSize = new FileInfo(DecompressedFile).Length;
 
 
-            return new SimulationResult(compressionTime, decompressionTime, numberBlocksFinded, compressedFileSize, decompressedFileSize, psnr);
+            return new SimulationResult(MaxDictionaryLength, Threshold, compressionTime, decompressionTime, numberBlocksFinded, compressedFileSize, decompressedFileSize, psnr);
 
         }
 

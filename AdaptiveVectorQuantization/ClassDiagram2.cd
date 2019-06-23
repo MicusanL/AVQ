@@ -1,0 +1,56 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Class Name="AdaptiveVectorQuantization.AVQ">
+    <Position X="0.5" Y="0.5" Width="3" />
+    <TypeIdentifier>
+      <HashCode>QIACAIAkAGAQGQRUgIABoAMHAAABQAAAAAQiAkGEAIA=</HashCode>
+      <FileName>AVQ.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="AdaptiveVectorQuantization.Block">
+    <Position X="3.75" Y="0.5" Width="2.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAABAAAgAAkgAAAAEAAAAAAAIAAAAEAAAAAAAA=</HashCode>
+      <FileName>Block.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="AdaptiveVectorQuantization.FastImage">
+    <Position X="13.25" Y="0.5" Width="2.25" />
+    <NestedTypes>
+      <Struct Name="AdaptiveVectorQuantization.FastImage.PixelData" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>FastImage.cs</NewMemberFileName>
+        </TypeIdentifier>
+      </Struct>
+    </NestedTypes>
+    <TypeIdentifier>
+      <HashCode>gAARABAABAAACAAAAAAAAGAIEAAAAAAAAAAQAAAAAAA=</HashCode>
+      <FileName>FastImage.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="AdaptiveVectorQuantization.FormAVQ">
+    <Position X="9.25" Y="0.5" Width="3.25" />
+    <Compartments>
+      <Compartment Name="Methods" Collapsed="true" />
+    </Compartments>
+    <TypeIdentifier>
+      <HashCode>AABCAAAAACAgQCAAIACBbBACAAAAAAQCAMAAEABoxAA=</HashCode>
+      <FileName>Form1.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="AdaptiveVectorQuantization.Position">
+    <Position X="6.5" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAEgAAAAAAAAAAAAIAAAAAAAAAAYAA=</HashCode>
+      <FileName>Position.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="AdaptiveVectorQuantization.SimulationResult">
+    <Position X="16" Y="0.5" Width="2.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAQAEAAQAAABAAAAAAAAAAAAABAAgAAAAAAA=</HashCode>
+      <FileName>SimulationResult.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>
